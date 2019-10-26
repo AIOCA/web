@@ -1,8 +1,16 @@
 @import 'globals';
+.map{
+
+ padding-left:29%;
+ padding-top:29%;
+  .leaflet-container {
+    height: 500px;
+    width: 500px;
+  }
+}
 
 .App {
   text-align: center;
-  margin: 1%;
 }
 
 .App-logo {

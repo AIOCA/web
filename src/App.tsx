@@ -138,13 +138,13 @@ class App extends Component<any, State> {
 
     return (
       <div className="App">
-        <NavigationDrawer drawerTitle="All In One Commute APP" toolbarTitle="Online  Site"
+        <NavigationDrawer drawerTitle="All In One Commute APP" toolbarTitle="All in One Commute APP"
           navItems={this.state.navitems.map(props => <NavLink {...props} key={props.toLink} />)}
           drawerType={NavigationDrawer.DrawerTypes.TEMPORARY}
           footer={
             <footer>
               <p><br />
-                2018 &copy;Online Site <span>All Rights Reserved</span>
+                2018 &copy;All in One Commute APP <span>All Rights Reserved</span>
               </p>
             </footer>
           }
