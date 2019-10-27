@@ -63,6 +63,14 @@ export class Home extends Component<any, State> {
     })
 
       return (
+        <>
+        <div className="instructions">
+          <h1>Instructions</h1>
+          <ul>
+            <li>Drag and place Start (Green marker) and End marker (Red marker) </li>
+            
+          </ul>
+          </div>
           <div className="map">
             <LeafletMap
               center={this.state.cordsgreen}
@@ -74,8 +82,8 @@ export class Home extends Component<any, State> {
               doubleClickZoom={true}
               scrollWheelZoom={true}
               dragging={true}
-              overlay={false}
-              animate={true}
+              overlay={true}
+              animate={false}
               easeLinearity={0.35}
             >
               <TileLayer
@@ -93,6 +101,7 @@ export class Home extends Component<any, State> {
               </Marker>
             </LeafletMap>
           </div>
+        </>
       )
   }
 }

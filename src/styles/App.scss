@@ -2,7 +2,8 @@
 .map{
 
  padding-left:29%;
- padding-top:29%;
+ padding-top:1%;
+ font-family: Georgia, 'Times New Roman', Times, serif;
   .leaflet-container {
     height: 500px;
     width: 500px;
@@ -12,7 +13,9 @@
 .App {
   text-align: center;
 }
-
+.instructions {
+  text-align: left;
+}
 .App-logo {
   animation: App-logo-spin infinite 20s linear;
   height: 80px;
