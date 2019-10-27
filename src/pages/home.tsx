@@ -1,21 +1,36 @@
 import React, { Component } from 'react';
 import  { Map as LeafletMap,TileLayer,Marker,Popup}  from 'react-leaflet';
 import * as L from 'leaflet';
+
 type State = {
   [key: string]: any
 }
 
-
 export class Home extends Component<any, State> {
   state = {
-    cordsgreen:[10.8505, 76.2711],
-    cordsred:[10.8505, 76.2711],
+    cordsgreen:[2222.8505, 76.2711],
+    cordsred:[222.8505, 76.2711],
   }
+
+  OnGeoIPFound = (position) => {
+    let cords = position.coords;
+    this.setState({cordsgreen:[cords.latitude,cords.longitude],cordsred:[cords.latitude,cords.longitude]})
+  }
+
+  componentDidMount() {
+    navigator.geolocation.getCurrentPosition(this.OnGeoIPFound,null,{
+      enableHighAccuracy: true,
+      timeout: 5000,
+      maximumAge: 60000
+    })
+  }
+
   OnDragGreenMarker = (e) => {
     const { lat, lng } = e.latlng;
     console.log(`dragged at ${lat}, ${lng}`)
     this.setState({cordsgreen:[lat,lng]})
   }
+
   OnDragRedMarker = (e) => {
     const { lat, lng } = e.latlng;
     console.log(`dragged at ${lat}, ${lng}`)
@@ -50,7 +65,7 @@ export class Home extends Component<any, State> {
       return (
           <div className="map">
             <LeafletMap
-              center={[10.8505, 76.2711]}
+              center={this.state.cordsgreen}
               zoom={10}
               maxZoom={100}
               //onClick={this.handleClick}

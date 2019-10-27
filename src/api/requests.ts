@@ -55,3 +55,12 @@ export async function UserRegister(user_name: string, display_name: string, pass
     };
     return SendRequest("/user/register", json);
 }
+
+/// !! NOT YET IMPLEMENTED IN BACKEND
+export async function CommutePaths(lat: number, long: number) {
+    let json = {
+        lat: lat,
+        long: long
+    };
+    return SendRequest("/commute/pos", json);
+}
