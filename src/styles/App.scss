@@ -1,6 +1,6 @@
 @import 'globals';
-.map{
 
+.map{
  padding-left:29%;
  padding-top:1%;
  font-family: Georgia, 'Times New Roman', Times, serif;
@@ -40,4 +40,7 @@
   to { transform: rotate(360deg); }
 }
 
-
+.estimate_button {
+  padding-right: 40%;
+  
+}

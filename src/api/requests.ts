@@ -57,10 +57,12 @@ export async function UserRegister(user_name: string, display_name: string, pass
 }
 
 /// !! NOT YET IMPLEMENTED IN BACKEND
-export async function CommutePaths(lat: number, long: number) {
+export async function CommutePaths(green: number[], red: number[]) {
     let json = {
-        lat: lat,
-        long: long
+        start_lat: green[0],
+        stop_lat: red[0],
+        start_long: green[1],
+        stop_long: red[1]
     };
-    return SendRequest("/commute/pos", json);
+    return SendRequest("/commute/estimate", json);
 }
