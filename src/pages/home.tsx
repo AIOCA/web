@@ -1,8 +1,10 @@
 import React, {Component} from 'react';
-import { DataTable,TableHeader,TableRow,TableColumn,Button } from "react-md";
+import { DataTable,TableHeader,TableRow,TableColumn,Button,Autocomplete } from "react-md";
 import  { Map as LeafletMap,TileLayer,Marker,Popup,Polyline}  from 'react-leaflet';
 import * as L from 'leaflet';
 import { CommutePaths } from '../api/requests';
+import { GetStreetName } from "../api/requests";
+
 type State = {
   [key: string]: any
 }
@@ -14,6 +16,9 @@ export class Home extends Component<any, State> {
     cordsred:[2222.8505, 76.2711],
     result_fetched:false,
     results:[],
+    locations:[],
+    tempend:[],
+    tempstart:[]
   }
 
   OnGeoIPFound = (position) => {
@@ -21,6 +26,7 @@ export class Home extends Component<any, State> {
     this.setState({cordsgreen:[cords.latitude,cords.longitude],cordsred:[cords.latitude,cords.longitude],centerpoint:[cords.latitude,cords.longitude]})
   }
 
+  
   componentDidMount() {
     navigator.geolocation.getCurrentPosition(this.OnGeoIPFound,null,{
       enableHighAccuracy: true,
@@ -45,7 +51,32 @@ export class Home extends Component<any, State> {
     let data = await CommutePaths(this.state.cordsgreen,this.state.cordsred)
     this.setState({result_fetched:true,results:data.products})
   }
-  
+
+  onStartValueEntered = async (value: any, _event: any) => {
+    let data = await GetStreetName( value);
+    if(data[0] !== undefined) {
+      console.log(data)
+      this.setState({locations:data.map(cool => cool['display_name']),tempstart:[data[0]['lat'],data[0]['lon']]})
+    }
+  }
+
+  onEndValueEntered = async (value: any, _event: any) => {
+    let data = await GetStreetName( value);
+    if(data[0] !== undefined) {
+      console.log(data)
+      this.setState({locations:data.map(cool => cool['display_name']),tempend:[data[0]['lat'],data[0]['lon']]})
+    }
+    
+  }
+
+  onStartAutoComplete = async () => {
+    this.setState({cordsgreen:this.state.tempstart,centerpoint:this.state.tempstart})
+  }
+
+  onEndAutoComplete = async () => {
+    this.setState({cordsred:this.state.tempend,centerpoint:this.state.tempend})
+  }
+
   render() {
     var latlngs = [
       new L.LatLng(this.state.cordsgreen[0], this.state.cordsgreen[1]),
@@ -80,6 +111,27 @@ export class Home extends Component<any, State> {
           <li>Drag and place Start (Green marker) and End marker (Red marker) </li>
           <li>Click Estimate Button below </li>
         </ul>
+        Start : 
+        <Autocomplete
+          id="starting-location"
+          label="Starting location"
+          placeholder="cool"
+          data={this.state.locations}
+          filter={Autocomplete.caseInsensitiveFilter}
+          onChange={this.onStartValueEntered}
+          onAutocomplete={this.onStartAutoComplete}
+        /><br/>
+        End : 
+        <Autocomplete
+          id="ending-location"
+          label="Ending location"
+          placeholder="cool"
+          data={this.state.locations}
+          filter={Autocomplete.caseInsensitiveFilter}
+          onChange={this.onEndValueEntered}
+          onAutocomplete={this.onEndAutoComplete}
+        /><br/>
+        <br/><br/><br/><br/><br/><br/><br/><br/>
         </div>
         <div className="map">
           <LeafletMap
@@ -97,6 +149,7 @@ export class Home extends Component<any, State> {
             easeLinearity={0.35}
             routing={true}
           >
+              
             <Polyline positions={latlngs}/>
             <TileLayer
               url='http://{s}.tile.osm.org/{z}/{x}/{y}.png'

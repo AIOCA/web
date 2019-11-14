@@ -20,10 +20,23 @@ export const COOKIE_OPTIONS: {
 
 async function SendRequest(url: string, json_data: {}) {
     let response: Response;
+
     response = await fetch(END_POINT + url, {
         body: JSON.stringify(json_data),
-        method: 'post'
+        method: "post"
     })
+
+
+    if (response.ok) {
+        let data = await response.json();
+        return data
+    }
+    return null
+}
+
+async function SendGetRequest(url: string) {
+    let response: Response;
+    response = await fetch(url)
 
     if (response.ok) {
         let data = await response.json();
@@ -66,3 +79,11 @@ export async function CommutePaths(green: number[], red: number[]) {
     };
     return SendRequest("/commute/estimate", json);
 }
+
+
+//   21
+export async function GetStreetName(token:string) {
+    let link = "https://nominatim.openstreetmap.org/search/"+token+"?format=json";
+    return SendGetRequest(link);
+}
+
