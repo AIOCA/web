@@ -1,9 +1,11 @@
 import React, {Component} from 'react';
+import 'leaflet/dist/leaflet.css';
 import { DataTable,TableHeader,TableRow,TableColumn,Button,Autocomplete } from "react-md";
 import  { Map as LeafletMap,TileLayer,Marker,Popup,Polyline}  from 'react-leaflet';
 import * as L from 'leaflet';
 import { CommutePaths } from '../api/requests';
 import { GetStreetName } from "../api/requests";
+
 
 type State = {
   [key: string]: any
@@ -117,7 +119,7 @@ export class Home extends Component<any, State> {
           label="Starting location"
           placeholder="cool"
           data={this.state.locations}
-          filter={Autocomplete.caseInsensitiveFilter}
+          filter={Autocomplete.fuzzyFilter}
           onChange={this.onStartValueEntered}
           onAutocomplete={this.onStartAutoComplete}
         /><br/>
@@ -127,11 +129,10 @@ export class Home extends Component<any, State> {
           label="Ending location"
           placeholder="cool"
           data={this.state.locations}
-          filter={Autocomplete.caseInsensitiveFilter}
+          filter={Autocomplete.fuzzyFilter}
           onChange={this.onEndValueEntered}
           onAutocomplete={this.onEndAutoComplete}
         /><br/>
-        <br/><br/><br/><br/><br/><br/><br/><br/>
         </div>
         <div className="map">
           <LeafletMap
