@@ -86,4 +86,14 @@ export async function GetStreetName(token:string) {
     let link = "https://nominatim.openstreetmap.org/search/"+token+"?format=json";
     return SendGetRequest(link);
 }
+//http://www.yournavigation.org/api/1.0/gosmore.php?flat=28.6337465&flon=77.35780799999999&tlat=28.6388179&tlon=77.3606496&format=geojson
 
+export async function GetPath(green: number[], red: number[]) {
+    let json = {
+        start_lat: green[0],
+        stop_lat: red[0],
+        start_long: green[1],
+        stop_long: red[1]
+    };
+    return SendRequest("/commute/route", json);
+}

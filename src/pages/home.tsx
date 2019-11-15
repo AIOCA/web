@@ -1,11 +1,10 @@
-import React, {Component} from 'react';
+import React, { Component, createRef } from 'react';
 import 'leaflet/dist/leaflet.css';
-import { DataTable,TableHeader,TableRow,TableColumn,Button,Autocomplete } from "react-md";
-import  { Map as LeafletMap,TileLayer,Marker,Popup,Polyline}  from 'react-leaflet';
+import { DataTable, TableHeader, TableRow, TableColumn, Button, Autocomplete } from "react-md";
+import { Map as LeafletMap, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import * as L from 'leaflet';
-import { CommutePaths } from '../api/requests';
+import { CommutePaths, GetPath } from '../api/requests';
 import { GetStreetName } from "../api/requests";
-
 
 type State = {
   [key: string]: any
@@ -13,70 +12,86 @@ type State = {
 
 export class Home extends Component<any, State> {
   state = {
-    cordsgreen:[2222.8505, 76.2711],
-    centerpoint:[2222.8505, 76.2711],
-    cordsred:[2222.8505, 76.2711],
-    result_fetched:false,
-    results:[],
-    locations:[],
-    tempend:[],
-    tempstart:[]
+    cordsgreen: [2222.8505, 76.2711],
+    centerpoint: [2222.8505, 76.2711],
+    cordsred: [2222.8505, 76.2711],
+    result_fetched: false,
+    results: [],
+    locations: [],
+    waypoints: [],
+    tempend: [],
+    tempstart: [],
+    isMapInit: false
   }
-
+  map = createRef<LeafletMap>();
+  //saveMap = ;
   OnGeoIPFound = (position) => {
     let cords = position.coords;
-    this.setState({cordsgreen:[cords.latitude,cords.longitude],cordsred:[cords.latitude,cords.longitude],centerpoint:[cords.latitude,cords.longitude]})
+    this.setState({ cordsgreen: [cords.latitude, cords.longitude], cordsred: [cords.latitude, cords.longitude], centerpoint: [cords.latitude, cords.longitude] })
   }
 
-  
   componentDidMount() {
-    navigator.geolocation.getCurrentPosition(this.OnGeoIPFound,null,{
+    navigator.geolocation.getCurrentPosition(this.OnGeoIPFound, null, {
       enableHighAccuracy: true,
       timeout: 5000,
       maximumAge: 60000
-    })
+    });
+
   }
 
-  OnDragGreenMarker = (e) => {
+  OnDragGreenMarker = async (e) => {
     const { lat, lng } = e.latlng;
     console.log(`dragged at ${lat}, ${lng}`)
-    this.setState({cordsgreen:[lat,lng]})
+    this.setState({ cordsgreen: [lat, lng] })
+    let data = await GetPath(this.state.cordsgreen, this.state.cordsred);
+    console.log(data)
+    this.setState({ waypoints: data["waypoint"].map(coord => new L.LatLng(coord[1], coord[0])) })
   }
 
-  OnDragRedMarker = (e) => {
+  OnDragRedMarker = async (e) => {
     const { lat, lng } = e.latlng;
     console.log(`dragged at ${lat}, ${lng}`)
-    this.setState({cordsred:[lat,lng]})
+    this.setState({ cordsred: [lat, lng] })
+    let data = await GetPath(this.state.cordsgreen, this.state.cordsred);
+    console.log(data)
+    this.setState({ waypoints: data["waypoint"].map(coord => new L.LatLng(coord[1], coord[0])) })
+    console.log(this.state.waypoints)
   }
-  
+
   OnClickEstimateButton = async () => {
-    let data = await CommutePaths(this.state.cordsgreen,this.state.cordsred)
-    this.setState({result_fetched:true,results:data.products})
+    let data = await CommutePaths(this.state.cordsgreen, this.state.cordsred)
+    this.setState({ result_fetched: true, results: data.products })
   }
 
   onStartValueEntered = async (value: any, _event: any) => {
-    let data = await GetStreetName( value);
-    if(data[0] !== undefined) {
+    let data = await GetStreetName(value);
+    if (data[0] !== undefined) {
       console.log(data)
-      this.setState({locations:data.map(cool => cool['display_name']),tempstart:[data[0]['lat'],data[0]['lon']]})
+      this.setState({ locations: data.map(cool => cool['display_name']), tempstart: [data[0]['lat'], data[0]['lon']] })
     }
   }
 
   onEndValueEntered = async (value: any, _event: any) => {
-    let data = await GetStreetName( value);
-    if(data[0] !== undefined) {
+    let data = await GetStreetName(value);
+    if (data[0] !== undefined) {
       console.log(data)
-      this.setState({locations:data.map(cool => cool['display_name']),tempend:[data[0]['lat'],data[0]['lon']]})
+      this.setState({ locations: data.map(cool => cool['display_name']), tempend: [data[0]['lat'], data[0]['lon']] })
     }
-    
+
   }
 
   onStartAutoComplete = async () => {
-    this.setState({cordsgreen:this.state.tempstart,centerpoint:this.state.tempstart})
+    this.setState({ cordsgreen: this.state.tempstart, centerpoint: this.state.tempstart })
+    let data = await GetPath(this.state.cordsgreen, this.state.cordsred);
+    console.log(data)
+    this.setState({ waypoints: data["waypoint"].map(coord => new L.LatLng(coord[1], coord[0])) })
   }
 
   onEndAutoComplete = async () => {
-    this.setState({cordsred:this.state.tempend,centerpoint:this.state.tempend})
+    this.setState({ cordsred: this.state.tempend, centerpoint: this.state.tempend })
+    let data = await GetPath(this.state.cordsgreen, this.state.cordsred);
+    console.log(data)
+    this.setState({ waypoints: data["waypoint"].map(coord => new L.LatLng(coord[1], coord[0])) })
   }
 
   render() {
@@ -84,6 +99,7 @@ export class Home extends Component<any, State> {
       new L.LatLng(this.state.cordsgreen[0], this.state.cordsgreen[1]),
       new L.LatLng(this.state.cordsred[0], this.state.cordsred[1]),
     ];
+    console.log(latlngs)
     //var polyline = L.polyline(latlngs, {color: 'red'})
     const greenmarker = new L.Icon({
       iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
@@ -102,112 +118,114 @@ export class Home extends Component<any, State> {
       popupAnchor: [1, -34],
       shadowSize: [41, 41]
     })
-    
+
     return (
+
       <>
-      {this.state.result_fetched===false ?(
-        <>
-        <div className="instructions">
-        <h1>Instructions</h1>
-        <ul>
-          <li>Drag and place Start (Green marker) and End marker (Red marker) </li>
-          <li>Click Estimate Button below </li>
-        </ul>
-        Start : 
-        <Autocomplete
-          id="starting-location"
-          label="Starting location"
-          placeholder="cool"
-          data={this.state.locations}
-          filter={Autocomplete.fuzzyFilter}
-          onChange={this.onStartValueEntered}
-          onAutocomplete={this.onStartAutoComplete}
-        /><br/>
-        End : 
-        <Autocomplete
-          id="ending-location"
-          label="Ending location"
-          placeholder="cool"
-          data={this.state.locations}
-          filter={Autocomplete.fuzzyFilter}
-          onChange={this.onEndValueEntered}
-          onAutocomplete={this.onEndAutoComplete}
-        /><br/>
-        </div>
-        <div className="map">
-          <LeafletMap
-            center={this.state.centerpoint}
-            zoom={10}
-            maxZoom={100}
-            //onClick={this.handleClick}
-            attributionControl={true}
-            zoomControl={true}
-            doubleClickZoom={true}
-            scrollWheelZoom={true}
-            dragging={true}
-            overlay={false}
-            animate={false}
-            easeLinearity={0.35}
-            routing={true}
-          >
-              
-            <Polyline positions={latlngs}/>
-            <TileLayer
-              url='http://{s}.tile.osm.org/{z}/{x}/{y}.png'
-            />
-            <Marker icon={greenmarker} position={this.state.cordsgreen} draggable={true} OnMouseUp={this.OnDragGreenMarker} >
-              <Popup>
-                Start
+        {this.state.result_fetched === false ? (
+          <>
+            <div className="instructions">
+              <h1>Instructions</h1>
+              <ul>
+                <li>Drag and place Start (Green marker) and End marker (Red marker) </li>
+                <li>Click Estimate Button below </li>
+              </ul>
+              Start :
+              <Autocomplete
+                id="starting-location"
+                label="Starting location"
+
+                placeholder="cool"
+                data={this.state.locations}
+                filter={null}
+                onChange={this.onStartValueEntered}
+                onAutocomplete={this.onStartAutoComplete}
+              /><br />
+              End :
+              <Autocomplete
+                id="ending-location"
+                label="Ending location"
+                placeholder="cool"
+                data={this.state.locations}
+                filter={null}
+                onChange={this.onEndValueEntered}
+                onAutocomplete={this.onEndAutoComplete}
+              /><br />
+            </div>
+            <div className="map">
+              <LeafletMap
+                center={this.state.centerpoint}
+                zoom={10}
+                maxZoom={100}
+                //onClick={this.handleClick}
+                attributionControl={true}
+                zoomControl={true}
+                doubleClickZoom={true}
+                scrollWheelZoom={true}
+                dragging={true}
+                overlay={false}
+                animate={false}
+                easeLinearity={0.35}
+                routing={true}
+                ref={this.map}
+              >
+                <Polyline positions={this.state.waypoints} color={"blue"} />
+                <TileLayer
+                  url='http://{s}.tile.osm.org/{z}/{x}/{y}.png'
+                />
+                <Marker icon={greenmarker} position={this.state.cordsgreen} draggable={true} OnMouseUp={this.OnDragGreenMarker} >
+                  <Popup>
+                    Start
               </Popup>
-            </Marker>
-            <Marker icon={redmarker} position={this.state.cordsred} draggable={true} OnMouseUp={this.OnDragRedMarker}>
-              <Popup>
-                End
+                </Marker>
+                <Marker icon={redmarker} position={this.state.cordsred} draggable={true} OnMouseUp={this.OnDragRedMarker}>
+                  <Popup>
+                    End
               </Popup>
-            </Marker>
-          </LeafletMap>
-          <br/>
-          <br/>
-          <br/>
-          <div className="estimate_button">
-            <Button
-              onClick={this.OnClickEstimateButton}
-              type="submit"
-              raised={true}
-            >
-              Estimate
+                </Marker>
+              </LeafletMap>
+              <br />
+              <br />
+              <br />
+              <div className="estimate_button">
+                <Button
+                  onClick={this.OnClickEstimateButton}
+                  type="submit"
+                  raised={true}
+                >
+                  Estimate
             </Button>
-          </div>
-        </div>
-        </>
-        ):(
-          <div id="results">
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <h2>Results</h2>
-            <DataTable>
-              <TableHeader>
-                <TableRow>
-                  <TableColumn>Service</TableColumn>
-                  <TableColumn>Price</TableColumn>
-                  <TableColumn>Eta</TableColumn>
-                </TableRow>
+              </div>
+            </div>
+          </>
+        ) : (
+            <div id="results">
+              <br />
+              <br />
+              <br />
+              <br />
+              <br />
+              <br />
+              <h2>Results</h2>
+              <DataTable>
+                <TableHeader>
+                  <TableRow>
+                    <TableColumn>Service</TableColumn>
+                    <TableColumn>Price</TableColumn>
+                    <TableColumn>Eta</TableColumn>
+                  </TableRow>
                 </TableHeader>
-                {this.state.results.map(data => 
+                {this.state.results.map(data =>
                   <TableRow>
                     <TableColumn>{data[0]}</TableColumn>
                     <TableColumn>{data[1]}</TableColumn>
                   </TableRow>)
                 }
-              
-            </DataTable>
-          </div>
-        )}
-     </> 
+
+              </DataTable>
+            </div>
+          )}
+      </>
     )
   }
 }
