@@ -3,12 +3,14 @@ import { Login } from './pages/login';
 import { Register } from './pages/register';
 import React, { Component } from 'react';
 import { Route, Link, Redirect } from 'react-router-dom';
-import { Home } from './pages/home';
+import { Estimate } from './pages/estimate';
 import './styles/App.scss';
 import { NavigationDrawer, ListItem } from "react-md";
 import { AdminPanel } from './pages/adminpanel';
 
 import { COOKIE_OPTIONS } from './api/requests';
+import { UserPanel } from './pages/userpanel';
+import Home from './pages/home';
 
 //Helper functions
 export function isAdmin() {
@@ -54,6 +56,7 @@ class App extends Component<any, State> {
       navitems.push({ toLink: '/register', name: 'Register' })
 
     } else {
+      navitems.push({ toLink: '/usercp', name: 'UserPanel' })
       navitems.push({ toLink: '/logout', name: 'Logout' })
     }
 
@@ -78,7 +81,7 @@ class App extends Component<any, State> {
     cookie.save("jwt", token, options)
     cookie.save("loggedin", true, options)
     cookie.save("admin", admin, options)
-
+    cookie.save("username", user.display_name, options)
     window.location.href = "/"
   }
 
@@ -138,7 +141,7 @@ class App extends Component<any, State> {
 
     return (
       <div className="App">
-        <NavigationDrawer drawerTitle="All In One Commute APP" toolbarTitle="All in One Commute APP"
+        <NavigationDrawer drawerTitle="AIOC" toolbarTitle="All in One Commute APP"
           navItems={this.state.navitems.map(props => <NavLink {...props} key={props.toLink} />)}
           drawerType={NavigationDrawer.DrawerTypes.TEMPORARY}
           footer={
@@ -154,6 +157,12 @@ class App extends Component<any, State> {
             exact
             component={Home}
           />
+
+          <Route
+            path="/estimate"
+            exact
+            component={Estimate}
+          />
           {this.state.loggedin === undefined ? (
             <Route
               path="/login"
@@ -165,7 +174,19 @@ class App extends Component<any, State> {
                 render={props => <Redirect to="/" />}
               />
             )}
+          {this.state.loggedin !== "true" ? (
+            <Route
+              path="/usercp"
+              render={props => <Redirect to="/" />}
+            />
+          ) : (
+              <Route
+                path="/usercp"
+                exact
+                component={UserPanel}
+              />
 
+            )}
           {this.state.loggedin === undefined ? (
             <Route
               path="/register"
@@ -177,19 +198,19 @@ class App extends Component<any, State> {
                 render={props => <Redirect to="/" />}
               />
             )}
-          
+
           {this.state.loggedin !== "true" || this.state.admin !== "true" ? (
             <Route
               path="/admin"
               render={props => <Redirect to="/" />}
             />
           ) : (
-                <Route
-                  path="/admin"
-                  exact
-                  component={AdminPanel}
-                />
-              
+              <Route
+                path="/admin"
+                exact
+                component={AdminPanel}
+              />
+
             )}
         </NavigationDrawer>
       </div>
