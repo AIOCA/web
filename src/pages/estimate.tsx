@@ -21,7 +21,8 @@ export class Estimate extends Component<any, State> {
     waypoints: [],
     tempend: [],
     tempstart: [],
-    isMapInit: false
+    distance:0,
+
   }
   map = createRef<LeafletMap>();
   //saveMap = ;
@@ -45,7 +46,7 @@ export class Estimate extends Component<any, State> {
     this.setState({ cordsgreen: [lat, lng] })
     let data = await GetPath(this.state.cordsgreen, this.state.cordsred);
     console.log(data)
-    this.setState({ waypoints: data["waypoint"].map(coord => new L.LatLng(coord[1], coord[0])) })
+    this.setState({ waypoints: data["waypoint"].map(coord => new L.LatLng(coord[1], coord[0])),distance:parseFloat(data["distance"]) })
   }
 
   OnDragRedMarker = async (e) => {
@@ -54,12 +55,12 @@ export class Estimate extends Component<any, State> {
     this.setState({ cordsred: [lat, lng] })
     let data = await GetPath(this.state.cordsgreen, this.state.cordsred);
     console.log(data)
-    this.setState({ waypoints: data["waypoint"].map(coord => new L.LatLng(coord[1], coord[0])) })
+    this.setState({ waypoints: data["waypoint"].map(coord => new L.LatLng(coord[1], coord[0])),distance:parseFloat(data["distance"]) })
     console.log(this.state.waypoints)
   }
 
   OnClickEstimateButton = async () => {
-    let data = await CommutePaths(this.state.cordsgreen, this.state.cordsred)
+    let data = await CommutePaths(this.state.distance)
     this.setState({ result_fetched: true, results: data.products })
   }
 
@@ -84,14 +85,14 @@ export class Estimate extends Component<any, State> {
     this.setState({ cordsgreen: this.state.tempstart, centerpoint: this.state.tempstart })
     let data = await GetPath(this.state.cordsgreen, this.state.cordsred);
     console.log(data)
-    this.setState({ waypoints: data["waypoint"].map(coord => new L.LatLng(coord[1], coord[0])) })
+    this.setState({ waypoints: data["waypoint"].map(coord => new L.LatLng(coord[1], coord[0])),distance:parseFloat(data["distance"]) })
   }
 
   onEndAutoComplete = async () => {
     this.setState({ cordsred: this.state.tempend, centerpoint: this.state.tempend })
     let data = await GetPath(this.state.cordsgreen, this.state.cordsred);
     console.log(data)
-    this.setState({ waypoints: data["waypoint"].map(coord => new L.LatLng(coord[1], coord[0])) })
+    this.setState({ waypoints: data["waypoint"].map(coord => new L.LatLng(coord[1], coord[0])),distance:parseFloat(data["distance"]) })
   }
 
   render() {
