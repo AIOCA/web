@@ -25,8 +25,9 @@ export class Register extends React.Component<LoginProps, State>{
         let data = await UserRegister(this.state.user_name, this.state.display_name, this.state.password, this.state.email, this.state.address);
         if (data !== null) {
             this.setState({ AuthError: '' });
-            if (data.Ok) {
-                this.props.OnLoggedIn(data.token);
+            if (data.OK) {
+
+                window.location.href = "/login";
             } else {
                 this.setState({ AuthError: data.message })
             }
