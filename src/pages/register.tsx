@@ -23,10 +23,11 @@ export class Register extends React.Component<LoginProps, State>{
 
     OnClickRegisterButton = async () => {
         let data = await UserRegister(this.state.user_name, this.state.display_name, this.state.password, this.state.email, this.state.address);
+        
         if (data !== null) {
             this.setState({ AuthError: '' });
             if (data.OK) {
-
+                
                 window.location.href = "/login";
             } else {
                 this.setState({ AuthError: data.message })
@@ -97,7 +98,6 @@ export class Register extends React.Component<LoginProps, State>{
                     secondary={true}
                 >Register</Button>
                 <div id="autherror">{this.state.AuthError}</div>
-
             </>
         )
     }

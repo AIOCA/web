@@ -11,6 +11,7 @@ import { AdminPanel } from './pages/adminpanel';
 import { COOKIE_OPTIONS } from './api/requests';
 import { UserPanel } from './pages/userpanel';
 import Home from './pages/home';
+import { VerificationPanel } from './pages/verificationpanel';
 
 //Helper functions
 export function isAdmin() {
@@ -57,6 +58,7 @@ class App extends Component<any, State> {
 
     } else {
       navitems.push({ toLink: '/usercp', name: 'UserPanel' })
+      navitems.push({ toLink: '/verificationpanel', name: 'VerificationPanel' })
       navitems.push({ toLink: '/logout', name: 'Logout' })
     }
 
@@ -163,6 +165,19 @@ class App extends Component<any, State> {
             exact
             component={Estimate}
           />
+          {this.state.loggedin === undefined ? (
+            <Route
+              path="/verificationpanel"
+              render={props => <Redirect to="/" />}
+            />
+          ) : (
+              <Route
+                path="/verificationpanel"
+                exact
+                component={VerificationPanel}
+              />
+            )}
+
           {this.state.loggedin === undefined ? (
             <Route
               path="/login"

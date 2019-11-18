@@ -26,7 +26,7 @@ async function SendRequest(url: string, json_data: {}) {
         method: "post"
     })
 
-
+    console.log(response.text);
     if (response.ok) {
         let data = await response.json();
         return data
@@ -70,9 +70,10 @@ export async function UserRegister(user_name: string, display_name: string, pass
 }
 
 /// !! NOT YET IMPLEMENTED IN BACKEND
-export async function CommutePaths(distance:number) {
+export async function CommutePaths(distance:number,token:string) {
     let json = {
         distance:distance,
+        token:token
     };
     return SendRequest("/commute/estimate", json);
 }
@@ -92,4 +93,19 @@ export async function GetPath(green: number[], red: number[]) {
         stop_long: red[1]
     };
     return SendRequest("/commute/route", json);
+}
+
+export async function IsVerified(token:string) {
+    let json = {
+        token: token
+    };
+    return SendRequest("/user/verification/isverified", json);
+}
+
+export async function Verify(token:string,code:string) {
+    let json = {
+        token: token,
+        code:code
+    };
+    return SendRequest("/user/verification/verify", json);
 }

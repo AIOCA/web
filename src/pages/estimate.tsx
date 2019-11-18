@@ -5,6 +5,7 @@ import { Map as LeafletMap, TileLayer, Marker, Popup, Polyline } from 'react-lea
 import * as L from 'leaflet';
 import { CommutePaths, GetPath } from '../api/requests';
 import { GetStreetName } from "../api/requests";
+import cookie from 'react-cookies';
 
 type State = {
   [key: string]: any
@@ -22,6 +23,7 @@ export class Estimate extends Component<any, State> {
     tempend: [],
     tempstart: [],
     distance:0,
+    error:''
 
   }
   map = createRef<LeafletMap>();
@@ -60,8 +62,12 @@ export class Estimate extends Component<any, State> {
   }
 
   OnClickEstimateButton = async () => {
-    let data = await CommutePaths(this.state.distance)
-    this.setState({ result_fetched: true, results: data.products })
+    let data = await CommutePaths(this.state.distance,cookie.load("jwt"))
+    if(data.OK) {
+      this.setState({ result_fetched: true, results: data.products })
+    } else {
+      this.setState({error:data.message})
+    }
   }
 
   onStartValueEntered = async (value: any, _event: any) => {
@@ -195,7 +201,7 @@ export class Estimate extends Component<any, State> {
                   raised={true}
                 >
                   Estimate
-            </Button>
+            </Button><br/>{this.state.error}
               </div>
             </div>
           </>
