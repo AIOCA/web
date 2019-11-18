@@ -53,7 +53,7 @@ export class VerificationPanel extends React.Component<any, State> {
                     type="submit"
                     raised={true}
                     secondary={true}
-                >Register</Button><br/>{this.state.error}<br />
+                >Verify</Button><br/>{this.state.error}<br />
 			</div>
 		)
 	}
